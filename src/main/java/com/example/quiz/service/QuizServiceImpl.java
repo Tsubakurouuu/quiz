@@ -10,6 +10,7 @@ import com.example.quiz.entity.Quiz;
 import com.example.quiz.repository.QuizRepository;
 
 @Service
+@Transactional
 public class QuizServiceImpl implements QuizService {
 	
 	@Autowired
@@ -30,7 +31,7 @@ public class QuizServiceImpl implements QuizService {
 	@Override
 	public Optional<Quiz> selectOneRandomQuiz() {
 		// TODO 自動生成されたメソッド・スタブ
-		Integer randId = repository.getRamdomId();
+		Integer randId = repository.getRandomId();
 		
 		if(randId == null) {
 			return Optional.empty();

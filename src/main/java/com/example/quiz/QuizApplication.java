@@ -1,5 +1,8 @@
 package com.example.quiz;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,45 +10,51 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.quiz.entity.Quiz;
-import com.example.quiz.repository.QuizRepository;
+import com.example.quiz.service.QuizService;
 
 @SpringBootApplication
 public class QuizApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(QuizApplication.class, args).getBean(QuizApplication.class).execute();
+		SpringApplication.run(QuizApplication.class, args);
 	}
 	
 	@Autowired
-	QuizRepository repository;
+	QuizService service;
 	
 	private void execute() {
 //		setup();
 //		showList();
 //		showOne();
 //		updateQuiz();
-		deleteQuiz();
+//		deleteQuiz();
+		doQuiz();
 	}
 	
 	private void setup() {
-		Quiz quiz1 = new Quiz(null, "『Spring』はフレームワークですか？", true, "登録太郎");
+		System.out.println("---登録処理開始---");
+		Quiz quiz1 = new Quiz(null, "『Java』はオブジェクト指向言語である。", true, "登録太郎");
+		Quiz quiz2 = new Quiz(null, "『Spring Data』はデータアクセスに対する機能を提供する。", true, "登録太郎");
+		Quiz quiz3 = new Quiz(null, "プログラムが沢山配置されているサーバーのことを『ライブラリ』という。", false, "登録太郎");
+		Quiz quiz4 = new Quiz(null, "『@Conponent』はインスタンス生成アノテーションである。", true, "登録太郎");
+		Quiz quiz5 = new Quiz(null, "『Spring MVC』が実装している『デザインパターン』ですべてのリクエストを１つのコントローラで受け取るパターンは『シングルコントローラ・パターン』である。", false, "登録太郎");
 		
-		quiz1 = repository.save(quiz1);
+		List<Quiz> quizList = new ArrayList<>();
 		
-		System.out.println("登録したデータは、" + quiz1 + "です。");
+		Collections.addAll(quizList, quiz1, quiz2, quiz3, quiz4, quiz5);
 		
-		Quiz quiz2 = new Quiz(null, "『Spring MVC』はバッチ処理を提供しますか？", false, "登録太郎");
+		for(Quiz quiz : quizList) {
+			service.insertQuiz(quiz);
+		}
 		
-		quiz2 = repository.save(quiz2);
-		
-		System.out.println("登録したデータは、" + quiz2 + "です。");
+		System.out.println("---登録処理完了---");
 		
 	}
 	
 	private void showList() {
 		System.out.println("---全件取得開始---");
 		
-		Iterable<Quiz> quizzes = repository.findAll();
+		Iterable<Quiz> quizzes = service.selectAll();
 		for(Quiz quiz : quizzes) {
 			System.out.println(quiz);
 		}
@@ -55,7 +64,7 @@ public class QuizApplication {
 	private void showOne() {
 		System.out.println("---1件取得開始---");
 		
-		Optional<Quiz> quizOpt = repository.findById(1);
+		Optional<Quiz> quizOpt = service.selectOneById(1);
 		if(quizOpt.isPresent()) {
 			System.out.println(quizOpt.get());
 		} else {
@@ -69,16 +78,36 @@ public class QuizApplication {
 		
 		Quiz quiz1 = new Quiz(1, "『スプリング』はフレームワークですか？", true, "変更タロウ");
 		
-		quiz1 = repository.save(quiz1);
-		
-		System.out.println("更新したデータは、" + quiz1 + "です。");
+		service.updateQuiz(quiz1);;
 		System.out.println("---更新処理終了---");
 	}
 	
 	private void deleteQuiz() {
 		System.out.println("---削除処理開始---");
-		repository.deleteById(2);
+		service.deleteQuizById(2);
 		System.out.println("---削除処理終了---");
+	}
+	
+	private void doQuiz() {
+		System.out.println("---クイズ1件取得開始---");
+		
+		Optional<Quiz> quizOpt = service.selectOneRandomQuiz();
+		
+		if(quizOpt.isPresent()) {
+			System.out.println(quizOpt.get());
+		} else {
+			System.out.println("該当する問題が存在しません・・・");
+		}
+		System.out.println("---クイズ1件取得完了---");
+		
+		Boolean myAnswer = false;
+		
+		Integer id = quizOpt.get().getId();
+		if(service.checkQuiz(id, myAnswer)) {
+			System.out.println("正解です！");
+		} else {
+			System.out.println("不正解です・・・");
+		}
 	}
 	
 	

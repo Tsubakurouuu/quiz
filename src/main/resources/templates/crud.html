@@ -45,7 +45,12 @@
 					<td th:text="${obj.answer} == true ? '○':'×'"></td>
 					<td th:text="${obj.author}"></td>
 					<td>
-						<form method="GET" th:action="@{/quiz/delete}">
+						<form method="GET" th:action="@{/quiz/{id}(id=${obj.id})}">
+							<input type="submit" value="編集">
+						</form>
+					</td>
+					<td>
+						<form method="POST" th:action="@{/quiz/delete}">
 							<input type="hidden" name="id" th:value="${obj.id}">
 							<input type="submit" value="削除">
 						</form>
